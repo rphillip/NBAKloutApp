@@ -1,0 +1,12 @@
+pandas
+numpy
+streamlit
+plotly
+python-dotenv
+altair
+bokeh
+requests
+boto3
+requests
+sqlalchemy
+psycopg2
