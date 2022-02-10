@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 streamlit = "*"
 watchdog = "*"
+sqlalchemy = "*"
+psycopg2 = "*"
 
 [dev-packages]
 

@@ -7,6 +7,5 @@ altair
 bokeh
 requests
 boto3
-requests
 sqlalchemy
 psycopg2
