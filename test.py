@@ -7,8 +7,28 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy import inspect
 import psycopg2
 import pandas as pd
+import requests
+import streamlit.components.v1 as components
+
+class Tweet(object):
+    def __init__(self, s, embed_str=False):
+        if not embed_str:
+            # Use Twitter's oEmbed API
+            # https://dev.twitter.com/web/embedded-tweets
+            api = "https://publish.twitter.com/oembed?url={}".format(s)
+            response = requests.get(api)
+            self.text = response.json()["html"]
+        else:
+            self.text = s
+
+    def _repr_html_(self):
+        return self.text
+
+    def component(self):
+        return components.html(self.text, height=600)
 
 st.title('NBAKlout')
+
 
 #DATE_COLUMN = 'date/time'
 #DATA_URL = ('https://s3-us-west-2.amazonaws.com/'
@@ -23,6 +43,9 @@ st.title('NBAKlout')
 #    return data
 
 #Postgres connect
+player = st.sidebar.text_input("Enter Player")
+stat1 = st.sidebar.text_input("Enter Stat")
+stat2 = st.sidebar.text_input("Enter Stat: Per Game default")
 data_load_state = st.text('Loading data...')
 instance = st.secrets["instance"]
 dbname = st.secrets["dbname"]
@@ -37,7 +60,16 @@ conn = engine.connect()
 query = 'select * from public."Salary";'
 df = pd.read_sql(query,conn)
 st.dataframe(df)
-data_load_state.text("Done! (using st.cache)")
+
+st.text("Top 5")
+df['max_rank'] = df['2021-22'].rank(method='max')
+st.dataframe(df.sort_values(by=['max_rank'], ascending=False).head(5))
+st.text("Bottom 5")
+st.dataframe(df.sort_values(by=['max_rank']).tail(5))
+
+data_load_state.text("Stats loaded")
+
+t = Tweet("https://twitter.com/NBA/status/1491541849617612806").component()
 #data_load_state = st.text('Loading data...')
 #data = load_data(10000)
 #data_load_state.text("Done! (using st.cache)")
