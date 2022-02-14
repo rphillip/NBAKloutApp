@@ -189,13 +189,13 @@ if playername != "All":
     f1,f2 = st.columns(2)
     with f1:
         st.image("imgs/{}.jpg".format(stats.loc[t1]['br_name']))
-        st.write(s1)
+        st.write(t1)
         st.write("{}: {}".format(stat1,stats.loc[t1][sql1]))
         st.write("{}: {}".format(stat2,stats.loc[t1][sql2]))
         st.write("{}: {}".format(stat3,stats.loc[t1][sql3]))
     with f2:
         st.image("imgs/{}.jpg".format(stats.loc[t2]['br_name']))
-        st.write(s2)
+        st.write(t2)
         st.write("{}: {}".format(stat1,stats.loc[t2][sql1]))
         st.write("{}: {}".format(stat2,stats.loc[t2][sql2]))
         st.write("{}: {}".format(stat3,stats.loc[t2][sql3]))
