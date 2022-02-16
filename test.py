@@ -170,7 +170,7 @@ def get_similar_players(df,name,s, isone=None):
     onlyone = isone
     out = []
     search = f"{s}_rk"
-    if onlyone:
+    if onlyone is True:
         search = f"rk"
     if df.loc[name][search] == 1:
         out.append(df.index[df[search]==2][0])
@@ -278,7 +278,10 @@ if playername != "All" and stat is not None:
     p.show_selected_player()
 
     st.markdown(f"<h1 style='text-align: center; color: #4285F4;'>Similar {stat[0]}</h1>", unsafe_allow_html=True)
-    sim1= get_similar_players(stats,playername,sql[0])
+    onlyone = False
+    if len(stat) == 1:
+        onlyone=True
+    sim1= get_similar_players(stats,playername,sql[0], onlyone)
     e1,e2 = st.columns(2)
     with e1:
         val = get_values(stats,sim1[0],sql)
