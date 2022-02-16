@@ -180,8 +180,8 @@ def get_similar_players(df,name,s, isone=None):
         out.append(df.index[df[search]==501][0])
     else:
         ix = df.loc[name][search]
-        out.append(df.index[search]==ix+1][0])
-        out.append(df.index[search]==ix-1][0])
+        out.append(df.index[df[search]==ix+1][0])
+        out.append(df.index[df[search]==ix-1][0])
     return out
 def linr3d(df,st):
     mesh_size = .02
