@@ -85,7 +85,7 @@ class Player(object):
         else:
             d1,d2,d3 = st.columns(3)
             met = self.values[2]
-            if self.values[2] == np.nan:
+            if pd.isna(met):
                 met = 0
             with d1:
                 st.metric(stat[0],self.pretty(self.values[0]))
@@ -99,8 +99,7 @@ class Player(object):
         st.image("imgs/{}.jpg".format(self.br_name))
         st.subheader(self.name)
         met = self.values[2]
-        st.write(pd.isna(met))
-        if met == np.nan:
+        if pd.isna(met):
             met = 0
         if other is None:
             if len(stat) == 1:
