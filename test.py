@@ -64,6 +64,7 @@ class Reddit(object):
 class Player(object):
     def __init__(self, stat, values, name, br_name):
         self.values = values
+        for value in
         self.stat = stat
         self.name = name
         self.br_name = br_name
@@ -84,10 +85,13 @@ class Player(object):
 
         else:
             d1,d2,d3 = st.columns(3)
+            met = self.values[2]
+            if self.values[2] is None:
+                met = 0
             with d1:
                 st.metric(stat[0],self.pretty(self.values[0]))
             with d2:
-                st.metric(stat[2],self.pretty(self.values[2]))
+                st.metric(stat[2],self.pretty(met))
             with d3:
                 st.metric(stat[1],self.pretty(self.values[1]))
 
@@ -95,20 +99,23 @@ class Player(object):
         other = ot
         st.image("imgs/{}.jpg".format(self.br_name))
         st.subheader(self.name)
+        met = self.values[2]
+        if self.values[2] is None:
+            met = 0
         if other is None:
             if len(stat) == 1:
                 st.metric(self.stat[0], self.pretty(self.values[0]))
             else:
                 st.metric(self.stat[0], self.pretty(self.values[0]))
                 st.metric(self.stat[1], self.pretty(self.values[1]))
-                st.metric(self.stat[2], self.pretty(self.values[2]))
+                st.metric(self.stat[2], self.pretty(met))
         else:
             if len(stat) == 1:
                 st.metric(self.stat[0], self.pretty(self.values[0]),self.pretty(float(self.values[0]-other[0])))
             else:
                 st.metric(self.stat[0], self.pretty(self.values[0]),self.pretty(float(self.values[0]-other[0])))
                 st.metric(self.stat[1], self.pretty(self.values[1]),self.pretty(float(self.values[1]-other[1])))
-                st.metric(self.stat[2], self.pretty(self.values[2]),self.pretty(float(self.values[2]-other[2])))
+                st.metric(self.stat[2], self.pretty(met),self.pretty(float(met-other[2])))
 
 
 @st.cache
