@@ -106,15 +106,19 @@ class Player(object):
         st.write(len(stat))
         if len(stat) == 1:
             met = self.values[0]
+            if other is not None:
+                meto = other[0]
             if pd.isna(met):
                 met = 0
+            if pd.isna(meto):
+                meto = 0
         else:
             met = self.values[2]
-        if other is not None:
-            meto = other[2]
-        if pd.isna(met):
-            met = 0
-            meto = 0
+            if other is not None:
+                meto = other[2]
+            if pd.isna(met):
+                met = 0
+                meto = 0
 
         if other is None:
             if len(stat) == 1:
