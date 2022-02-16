@@ -13,3 +13,4 @@ babel
 millify
 praw
 sklearn
+tweepy

@@ -15,8 +15,18 @@ from millify import millify
 import praw
 import plotly.graph_objects as go
 from sklearn.svm import SVR
+import tweepy
+
+class IDPrinter(tweepy.Stream):
+
+    def on_status(self, status):
+        print(status.id)
 
 
+printer = IDPrinter(
+  "Consumer Key here", "Consumer Secret here",
+  "Access Token here", "Access Token Secret here"
+)
 class Tweet(object):
     def __init__(self, s, embed_str=False):
         if not embed_str:
@@ -100,6 +110,11 @@ class Player(object):
                 st.metric(self.stat[1], self.pretty(self.values[1]),self.pretty(float(self.values[1]-other[1])))
                 st.metric(self.stat[2], self.pretty(self.values[2]),self.pretty(float(self.values[2]-other[2])))
 
+
+@st.cache
+ def convert_df(df):
+     # IMPORTANT: Cache the conversion to prevent computation on every rerun
+     return df.to_csv().encode('utf-8')
 
 @st.cache(allow_output_mutation=True)
 def get_connection(path):
@@ -186,7 +201,14 @@ passwd = st.secrets["passwd"]
 hostname = st.secrets["hostname"]
 portnum = st.secrets["portnum"]
 path = "postgresql://{}:{}@{}:{}/{}".format(username,passwd,hostname,portnum,dbname)
-
+stream = tweepy.Stream(
+  st.secrets['twitter_id'], st.secrets['twitter_secret'],
+  st.secrets['auth_id'], st.secrets['auth_secret']
+)
+reddit1 = praw.Reddit(
+    client_id=st.secrets["reddit_id"],
+    client_secret=st.secrets["reddit_secret"],
+    user_agent=("NBAKlout v1.0 by /u/r_phill https://nbaklout.icu")
 playerlist = ["All"]
 statlist = ["None"]
 statdf = pd.DataFrame()
@@ -199,10 +221,6 @@ with spin:
     playerlist.extend(df[0]['name'].values.tolist())
     statlist.extend(df[1]['desc'].values.tolist())
     statdf = df[1].set_index('desc')
-    reddit1 = praw.Reddit(
-        client_id=st.secrets["reddit_id"],
-        client_secret=st.secrets["reddit_secret"],
-        user_agent=("NBAKlout v1.0 by /u/r_phill https://nbaklout.icu"),
     )
 
 op = 0
@@ -357,4 +375,11 @@ elif stats is not None:
 #    red = Reddit(comment.permalink).component()
 #t = Tweet("https://twitter.com/NBA/status/1491541849617612806").component()
 #
+csv = convert_df(stats)
+st.download_button(
+     label="Download data as CSV",
+     data=csv,
+     file_name='nbaklout.csv',
+     mime='text/csv',
+ )
 st.dataframe(stats)
