@@ -99,6 +99,7 @@ class Player(object):
         st.image("imgs/{}.jpg".format(self.br_name))
         st.subheader(self.name)
         met = self.values[2]
+        st.write(met)
         if self.values[2] is None:
             met = 0
         if other is None:
