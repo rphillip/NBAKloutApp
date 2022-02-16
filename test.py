@@ -209,6 +209,7 @@ reddit1 =(praw.Reddit(
     client_id=st.secrets["reddit_id"],
     client_secret=st.secrets["reddit_secret"],
     user_agent=("NBAKlout v1.0 by /u/r_phill https://nbaklout.icu")))
+
 playerlist = ["All"]
 statlist = ["None"]
 statdf = pd.DataFrame()
@@ -221,7 +222,7 @@ with spin:
     playerlist.extend(df[0]['name'].values.tolist())
     statlist.extend(df[1]['desc'].values.tolist())
     statdf = df[1].set_index('desc')
-    )
+
 
 op = 0
 playername = st.sidebar.selectbox("Enter Player", playerlist)
