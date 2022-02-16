@@ -166,18 +166,22 @@ def get_values(df,name,sql):
         v.append(df.loc[name][sql[1]])
         v.append(df.loc[name][sql[2]])
     return v
-def get_similar_players(df,name,s):
+def get_similar_players(df,name,s, isone=None):
+    onlyone = isone
     out = []
-    if df.loc[name][f"{s}_rk"] == 1:
-        out.append(df.index[df[f"{s}_rk"]==2][0])
-        out.append(df.index[df[f"{s}_rk"]==3][0])
-    elif df.loc[name][f"{s}_rk"] == 502:
-        out.append(df.index[df[f"{s}_rk"]==500][0])
-        out.append(df.index[df[f"{s}_rk"]==501][0])
+    search = f"{s}_rk"
+    if onlyone:
+        search = f"rk"
+    if df.loc[name][search] == 1:
+        out.append(df.index[df[search]==2][0])
+        out.append(df.index[df[search]==3][0])
+    elif df.loc[name][search] == 502:
+        out.append(df.index[df[search]==500][0])
+        out.append(df.index[df[search]==501][0])
     else:
-        ix = df.loc[name][f"{s}_rk"]
-        out.append(df.index[df[f"{s}_rk"]==ix+1][0])
-        out.append(df.index[df[f"{s}_rk"]==ix-1][0])
+        ix = df.loc[name][search]
+        out.append(df.index[search]==ix+1][0])
+        out.append(df.index[search]==ix-1][0])
     return out
 def linr3d(df,st):
     mesh_size = .02
