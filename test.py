@@ -112,9 +112,9 @@ class Player(object):
 
 
 @st.cache
- def convert_df(df):
-     # IMPORTANT: Cache the conversion to prevent computation on every rerun
-     return df.to_csv().encode('utf-8')
+def convert_df(df):
+    # IMPORTANT: Cache the conversion to prevent computation on every rerun
+    return df.to_csv().encode('utf-8')
 
 @st.cache(allow_output_mutation=True)
 def get_connection(path):
