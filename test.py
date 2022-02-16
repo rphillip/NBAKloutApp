@@ -64,7 +64,6 @@ class Reddit(object):
 class Player(object):
     def __init__(self, stat, values, name, br_name):
         self.values = values
-        for value in
         self.stat = stat
         self.name = name
         self.br_name = br_name
