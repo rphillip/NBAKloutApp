@@ -115,7 +115,7 @@ class Player(object):
         if pd.isna(met):
             met = 0
             meto = 0
-        else
+
         if other is None:
             if len(stat) == 1:
                 st.metric(self.stat[0], self.pretty(met))
