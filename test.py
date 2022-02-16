@@ -11,6 +11,11 @@ import pandas as pd
 import requests
 import streamlit.components.v1 as components
 import plotly.express as px
+from millify import millify
+import praw
+import plotly.graph_objects as go
+from sklearn.svm import SVR
+
 
 class Tweet(object):
     def __init__(self, s, embed_str=False):
@@ -27,14 +32,73 @@ class Tweet(object):
         return self.text
 
     def component(self):
+        return components.html(self.text, height=800)
+class Reddit(object):
+    def __init__(self, s, embed_str=False):
+        if not embed_str:
+            #https://github.com/reddit-archive/reddit/wiki/oEmbed
+            #api = "https://www.reddit.com/oembed?url={}".format(s)
+            #api = f"https://www.redditmedia.com/{s}"
+            api = "https://www.redditmedia.com/r/nba/comments/qz4n0i/spears_suns_say_frank_kaminsky_iii_has_been/?ref_source=embed&amp;ref=share&amp;embed=true"
+            response = requests.get(api)
+            self.text = response#.json()["html"]
+        else:
+            self.text = s
+            #https://www.redditmedia.com/r/nba/comments/qz4n0i/spears_suns_say_frank_kaminsky_iii_has_been/?ref_source=embed&amp;ref=share&amp;embed=true
+            #<iframe id="reddit-embed" src="https://www.redditmedia.com/r/nba/comments/qz4n0i/spears_suns_say_frank_kaminsky_iii_has_been/?ref_source=embed&amp;ref=share&amp;embed=true" sandbox="allow-scripts allow-same-origin allow-popups" style="border: none;" height="144" width="640" scrolling="no"></iframe>
+    def _repr_html_(self):
+        return self.text
+
+    def component(self):
         return components.html(self.text, height=600)
+class Player(object):
+    def __init__(self, stat, values, name, br_name):
+        self.values = values
+        self.stat = stat
+        self.name = name
+        self.br_name = br_name
+    def pretty(self,n):
+        if abs(n) < .01:
+            return f'{n:.3g}'
+        else:
+            return millify(n,2)
+    def show_selected_player(self):
+        c1,c2,c3 = st.columns(3)
+        with c2:
+            st.image("imgs/{}.jpg".format(self.br_name))
+            st.subheader(self.name)
 
-st.image("logo.png")
+        if len(stat) == 1:
+            with c2:
+                st.metric(self.stat[0], self.pretty(self.values[0]))
 
+        else:
+            d1,d2,d3 = st.columns(3)
+            with d1:
+                st.metric(stat[0],self.pretty(self.values[0]))
+            with d2:
+                st.metric(stat[2],self.pretty(self.values[2]))
+            with d3:
+                st.metric(stat[1],self.pretty(self.values[1]))
 
-#DATE_COLUMN = 'date/time'
-#DATA_URL = ('https://s3-us-west-2.amazonaws.com/'
-#            'streamlit-demo-data/uber-raw-data-sep14.csv.gz')
+    def show_similar_player(self, ot=None):
+        other = ot
+        st.image("imgs/{}.jpg".format(self.br_name))
+        st.subheader(self.name)
+        if other is None:
+            if len(stat) == 1:
+                st.metric(self.stat[0], self.pretty(self.values[0]))
+            else:
+                st.metric(self.stat[0], self.pretty(self.values[0]))
+                st.metric(self.stat[1], self.pretty(self.values[1]))
+                st.metric(self.stat[2], self.pretty(self.values[2]))
+        else:
+            if len(stat) == 1:
+                st.metric(self.stat[0], self.pretty(self.values[0]),self.pretty(float(self.values[0]-other[0])))
+            else:
+                st.metric(self.stat[0], self.pretty(self.values[0]),self.pretty(float(self.values[0]-other[0])))
+                st.metric(self.stat[1], self.pretty(self.values[1]),self.pretty(float(self.values[1]-other[1])))
+                st.metric(self.stat[2], self.pretty(self.values[2]),self.pretty(float(self.values[2]-other[2])))
 
 
 @st.cache(allow_output_mutation=True)
@@ -45,40 +109,75 @@ def get_connection(path):
 
 @st.cache(allow_output_mutation=True, hash_funcs={Connection: id})
 def get_data(conn):
-    query = 'select * from demo;'
     query2 = 'select name from stats;'
     query3 = 'select * from defs;'
     #query4 = 'select * from stats;'
-    df = pd.read_sql(query,conn)
     df2 = pd.read_sql(query2,conn)
     df3 = pd.read_sql(query3,conn)
     #df4 = pd.read_sql(query4,conn)
-    return (df, df2, df3)
+    return (df2, df3)
 
-def get_table(conn, s1, s2, op):
-    if s1 == 1:
-        query = 'select name, br_name, {} from stats;'.format(s1)
-        return pd.read_sql(query,conn)
-    elif s2 == 1:
-        query = 'select name, br_name, {} from stats;'.format(s2)
-        return pd.read_sql(query,conn)
+def get_table(conn, op, s1, s2=None):
+    if s2 == None:
+        query = f'select name, br_name, {s1} from stats;'
+        df = pd.read_sql(query,conn)
+        df['rk'] = df[s1].rank(method='first',ascending=False)
+        return df
     else:
-        query = 'select name, br_name, {}, {} from stats;'.format(s1,s2)
+        query = f'select name, br_name, {s1}, {s2} from stats;'
         df = pd.read_sql(query,conn)
         s3 = ""
         if op == 1:
-            s3 = s1 + '*' + s2
+            s3 = f'{s1}*{s2}'
             df[s3] = df[s1] * df[s2]
         elif op == 2:
-            s3 = s1 + '/' + s2
+            s3 = f'{s1}/{s2}'
             df[s3] = df[s1] / df[s2]
             df.loc[np.isinf(df[s3]), s3] = np.nan
 
         df['rk'] = df[s3].rank(method='first',ascending=False)
         df[s1+'_rk'] = df[s1].rank(method='first',ascending=False)
-        df[s2+'_rk'] = df[s3].rank(method='first',ascending=False)
+        df[s2+'_rk'] = df[s2].rank(method='first',ascending=False)
         return df
-
+def pretty(n):
+    if n < .01:
+        return f'{n:.3g}'
+    else:
+        return millify(n,3)
+def get_values(df,name,sql):
+    v=[]
+    v.append(df.loc[name][sql[0]])
+    if len(sql) > 1:
+        v.append(df.loc[name][sql[1]])
+        v.append(df.loc[name][sql[2]])
+    return v
+def get_similar_players(df,name,s):
+    out = []
+    if df.loc[name][f"{s}_rk"] == 1:
+        out.append(df.index[df[f"{s}_rk"]==2][0])
+        out.append(df.index[df[f"{s}_rk"]==3][0])
+    elif df.loc[name][f"{s}_rk"] == 502:
+        out.append(df.index[df[f"{s}_rk"]==500][0])
+        out.append(df.index[df[f"{s}_rk"]==501][0])
+    else:
+        ix = df.loc[name][f"{s}_rk"]
+        out.append(df.index[df[f"{s}_rk"]==ix+1][0])
+        out.append(df.index[df[f"{s}_rk"]==ix-1][0])
+    return out
+def linr3d(df,st):
+    mesh_size = .02
+    margin = 0
+    X = df[[st[0], st[1]]]
+    y = df[st[2]]
+    model = SVR(C=1.)
+    model.fit(X, y)
+    x_min, x_max = X[st[0]].min() - margin, X[st[0]].max() + margin
+    y_min, y_max = X[st[1]].min() - margin, X[st[1]].max() + margin
+    xrange = np.arange(x_min, x_max, mesh_size)
+    yrange = np.arange(y_min, y_max, mesh_size)
+    xx, yy = np.meshgrid(xrange, yrange)
+    pred = model.predict(np.c_[xx.ravel(), yy.ravel()])
+    return (xrange, yrange, pred)
 #Postgres connect
 instance = st.secrets["instance"]
 dbname = st.secrets["dbname"]
@@ -93,14 +192,18 @@ statlist = ["None"]
 statdf = pd.DataFrame()
 #load data
 spin = st.spinner('Loading data...')
-stats = pd.DataFrame()
 with spin:
+    st.image("logo.png")
     engine = get_connection(path)
     df = get_data(engine)
-    stats = df[0].copy().sort_values(by='name')
-    playerlist.extend(df[1]['name'].values.tolist())
-    statlist.extend(df[2]['desc'].values.tolist())
-    statdf = df[2].set_index('desc')
+    playerlist.extend(df[0]['name'].values.tolist())
+    statlist.extend(df[1]['desc'].values.tolist())
+    statdf = df[1].set_index('desc')
+    reddit1 = praw.Reddit(
+        client_id=st.secrets["reddit_id"],
+        client_secret=st.secrets["reddit_secret"],
+        user_agent=("NBAKlout v1.0 by /u/r_phill https://nbaklout.icu"),
+    )
 
 op = 0
 playername = st.sidebar.selectbox("Enter Player", playerlist)
@@ -111,155 +214,147 @@ if operation == 'multiply by':
 elif operation == 'divide by':
     op = 2
 stat2 = st.sidebar.selectbox("Stat Two", statlist, index = statlist.index('Dollars: Salary'))
+st.sidebar.write("Stats from 2021-22 Season")
 
 stats = pd.DataFrame()
-sql1 =statdf.loc[stat1]['0']
-sql2 =statdf.loc[stat2]['0']
-if op == 2:
-    sql3 = sql1 + '/' + sql2
-    stat3 = stat1 +'/' + stat2
-else:
-    sql3 = sql1 + '*' + sql2
-    stat3 = stat1 +'*' + stat2
+sql = []
+values = []
+stat = []
 with st.spinner('Loading data...'):
-    if (stat1 == 'All') and (stat1 == 'All'):
-        stats = stats
-    elif stat1 == 'All':
-        stats = get_table(engine,1,sql2,op)
-    elif stat2 == 'All':
-        stats = get_table(engine,sql1,1,op)
+    if (stat1 == 'None') and (stat2 == 'None'):
+        stats = None
+        stat = None
+    elif stat1 == 'None':
+        sql.append(statdf.loc[stat2]['0'])
+        stat.append(stat2)
+        stats = get_table(engine,op,sql[0])
+    elif stat2 == 'None':
+        sql.append(statdf.loc[stat1]['0'])
+        stat.append(stat1)
+        stats = get_table(engine,op,sql[0])
     else:
-        stats = get_table(engine,sql1,sql2,op)
+        sql.append(statdf.loc[stat1]['0'])
+        sql.append(statdf.loc[stat2]['0'])
+        stat.append(stat1)
+        stat.append(stat2)
+        stats = get_table(engine,op,sql[0],sql[1])
+        if op == 2:
+            sql.append(f'{sql[0]}/{sql[1]}')
+            stat.append(f'{stat1}/{stat2}')
+        else:
+            sql.append(f'{sql[0]}*{sql[1]}')
+            stat.append(f'{stat1}*{stat2}')
 
 
-#stats['rk'] = stats['followers per dollar'].rank(method='first',ascending=False)
-#stats['stat1_rk'] = stats['twit_followers_count'].rank(method='first',ascending=False)
-#stats['stat2_rk'] = stats['2021-22'].rank(method='first',ascending=False)
-if playername != "All":
+if playername != "All" and stat is not None:
     #st.dataframe(stats)
     #statone = stats.sort_values
     stats = stats.set_index('name')
-    c1,c2,c3 = st.columns(3)
-    with c2:
-        st.image("imgs/{}.jpg".format(stats.loc[playername]['br_name']))
-        st.write(playername)
+    val = get_values(stats,playername,sql)
+    p = Player(stat,val,playername,stats.loc[playername]['br_name'])
+    p.show_selected_player()
 
-    d1,d2,d3 = st.columns(3)
-    with d1:
-        st.metric(stat1,stats.loc[playername][sql1])
-    with d2:
-        st.metric(stat3,stats.loc[playername][sql3])
-    with d3:
-        st.metric(stat2,stats.loc[playername][sql2])
-
-    st.markdown("<h1 style='text-align: center; color: red;'>Similar Followers</h1>", unsafe_allow_html=True)
-
-    s1 = ""
-    s2 = ""
-    if stats.loc[playername][sql1+'_rk'] == 1:
-        s1 = stats.index[stats[sql1+'_rk']==2][0]
-        s2 = stats.index[stats[sql1+'_rk']==3][0]
-    else:
-        ix = stats.loc[playername][sql1+'_rk']
-        s1 = stats.index[stats[sql1+'_rk']==ix+1][0]
-        s2 = stats.index[stats[sql1+'_rk']==ix-1][0]
+    st.markdown(f"<h1 style='text-align: center; color: #4285F4;'>Similar {stat[0]}</h1>", unsafe_allow_html=True)
+    sim1= get_similar_players(stats,playername,sql[0])
     e1,e2 = st.columns(2)
     with e1:
-        st.image("imgs/{}.jpg".format(stats.loc[s1]['br_name']))
-        st.write(s1)
-        st.write("{}: {}".format(stat1,stats.loc[s1][sql1]))
-        st.write("{}: {}".format(stat2,stats.loc[s1][sql2]))
-        st.write("{}: {}".format(stat3,stats.loc[s1][sql3]))
+        val = get_values(stats,sim1[0],sql)
+        p1= Player(stat,val,sim1[0],stats.loc[sim1[0]]['br_name'])
+        p1.show_similar_player(p.values)
     with e2:
-        st.image("imgs/{}.jpg".format(stats.loc[s2]['br_name']))
-        st.write(s2)
-        st.write("{}: {}".format(stat1,stats.loc[s2][sql1]))
-        st.write("{}: {}".format(stat2,stats.loc[s2][sql2]))
-        st.write("{}: {}".format(stat3,stats.loc[s2][sql3]))
-    st.markdown("<h1 style='text-align: center; color: red;'>Similar Salary</h1>", unsafe_allow_html=True)
-    t1 = ""
-    t2 = ""
-    if stats.loc[playername][sql2+'_rk'] == 1:
-        t1 = stats.index[stats[sql2+'_rk']==2][0]
-        t2 = stats.index[stats[sql2+'_rk']==3][0]
-    else:
-        ix = stats.loc[playername][sql2+'_rk']
-        t1 = stats.index[stats[sql2+'_rk']==ix+1][0]
-        t2 = stats.index[stats[sql2+'_rk']==ix-1][0]
-    f1,f2 = st.columns(2)
-    with f1:
-        st.image("imgs/{}.jpg".format(stats.loc[t1]['br_name']))
-        st.write(t1)
-        st.write("{}: {}".format(stat1,stats.loc[t1][sql1]))
-        st.write("{}: {}".format(stat2,stats.loc[t1][sql2]))
-        st.write("{}: {}".format(stat3,stats.loc[t1][sql3]))
-    with f2:
-        st.image("imgs/{}.jpg".format(stats.loc[t2]['br_name']))
-        st.write(t2)
-        st.write("{}: {}".format(stat1,stats.loc[t2][sql1]))
-        st.write("{}: {}".format(stat2,stats.loc[t2][sql2]))
-        st.write("{}: {}".format(stat3,stats.loc[t2][sql3]))
+        val = get_values(stats,sim1[1],sql)
+        p2= Player(stat,val,sim1[1],stats.loc[sim1[1]]['br_name'])
+        p2.show_similar_player(p.values)
+    if len(stat)>1:
+        st.markdown(f"<h1 style='text-align: center; color: #4285F4;'>Similar {stat[1]}</h1>", unsafe_allow_html=True)
+        sim2= get_similar_players(stats,playername,sql[1])
+        f1,f2 = st.columns(2)
+        with f1:
+            val = get_values(stats,sim2[0],sql)
+            p3= Player(stat,val,sim2[0],stats.loc[sim2[0]]['br_name'])
+            p3.show_similar_player(p.values)
+        with f2:
+            val = get_values(stats,sim2[1],sql)
+            p4= Player(stat,val,sim2[1],stats.loc[sim2[1]]['br_name'])
+            p4.show_similar_player(p.values)
+    subreddit = reddit1.subreddit("nba")
+    #rc = subreddit.search(playername, limit=1)
+    #for i in rc:
+    #    st.write(i.permalink)
+    #red = Reddit("https://www.reddit.com/r/nba/comments/stbide/comment/hx2rqx2/?utm_source=share&utm_medium=web2x&context=3").component()
 
-else:
+elif stats is not None:
     #st.dataframe(stats)
+    f1,f2,f3 = st.columns(3)
+    #f1,f2,f3,f4 = st.columns(4)
+    if len(stat) > 1 :
+        with f3:
+            lz = st.checkbox('log z axis', value=False)
+        with f2:
+            ly = st.checkbox('log y axis', value=False)
+    with f1:
+        lx = st.checkbox('log x axis', value=False)
+    #with f4:
+    #    lr = st.checkbox('linear regression', value=False)
     with st.spinner('Loading data...'):
-        fig = (px.scatter_3d(stats, x=sql1, y=sql2,
-             hover_name='name',z=sql3,
-             color = sql3, color_continuous_scale ="rainbow",
-             labels={
-                sql1: stat1,
-                sql2: stat2,
-                sql3: stat3
-                },
-             title=stat3))
+        if len(stat) > 1 :
+            fig = (px.scatter_3d(stats, x=sql[0], y=sql[1],
+                 hover_name='name', z=sql[2], log_z=lz,
+                 log_y=ly, log_x=lx,
+                 color = sql[2], color_continuous_scale ="rainbow",
+                 labels={
+                    sql[0]: stat[0],
+                    sql[1]: stat[1],
+                    sql[2]: stat[2]
+                    },
+                 title=stat[2]))
+        #    if lr:
+        #        mesh = linr3d(stats,sql)
+        #        fig.update_traces(marker=dict(size=5))
+        #        fig.add_traces(go.Surface(x=mesh[0], y=mesh[1], z=mesh[0], name='prediction surface'))
+        else:
+             stats = stats.sort_values(by=f"rk")
+             fig = (px.histogram(stats, x='name', y=sql[0],
+                color = sql[0],
+                labels={
+                    sql[0]: stat[0],
+                    },
+                title=stat[0]))
         st.plotly_chart(fig,use_container_width=False)
-    st.markdown("<h1 style='text-align: center; color: red;'>Top 3</h1>", unsafe_allow_html=True)
-    stats = stats.set_index('name')
-    g1, g2, g3 = st.columns(3)
-    s1 = stats.index[stats['rk']==1][0]
-    s2 = stats.index[stats['rk']==2][0]
-    s3 = stats.index[stats['rk']==3][0]
-    with g1:
-        st.image("imgs/{}.jpg".format(stats.loc[s1]['br_name']))
-        st.write(s1)
-        st.write("{}: {}".format(stat1,stats.loc[s1][sql1]))
-        st.write("{}: {}".format(stat2,stats.loc[s1][sql2]))
-        st.write("{}: {}".format(stat3,stats.loc[s1][sql3]))
-    with g2:
-        st.image("imgs/{}.jpg".format(stats.loc[s2]['br_name']))
-        st.write(s2)
-        st.write("{}: {}".format(stat1,stats.loc[s2][sql1]))
-        st.write("{}: {}".format(stat2,stats.loc[s2][sql2]))
-        st.write("{}: {}".format(stat3,stats.loc[s2][sql3]))
-    with g3:
-        st.image("imgs/{}.jpg".format(stats.loc[s3]['br_name']))
-        st.write(s3)
-        st.write("{}: {}".format(stat1,stats.loc[s3][sql1]))
-        st.write("{}: {}".format(stat2,stats.loc[s3][sql2]))
-        st.write("{}: {}".format(stat3,stats.loc[s3][sql3]))
 
+        st.markdown("<h1 style='text-align: center; color: red;'>Top 3</h1>", unsafe_allow_html=True)
+        stats = stats.set_index('name')
+        s1 = stats.index[stats['rk']==1][0]
+        s2 = stats.index[stats['rk']==2][0]
+        s3 = stats.index[stats['rk']==3][0]
+        g1, g2, g3 = st.columns(3)
+        with g1:
+            val = get_values(stats,s1,sql)
+            p1= Player(stat,val,s1,stats.loc[s1]['br_name'])
+            p1.show_similar_player()
+        with g2:
+            val = get_values(stats,s2,sql)
+            p2= Player(stat,val,s2,stats.loc[s2]['br_name'])
+            p2.show_similar_player()
+        with g3:
+            val = get_values(stats,s3,sql)
+            p3= Player(stat,val,s3,stats.loc[s3]['br_name'])
+            p3.show_similar_player()
+    #    X = stats[sql[0]]
+    #    y = stats[sql[1]]
+    #    model = sklearn.linear_model.LinearRegression()
+    #    model.fit(X, y)
+    #    y_pred = model.predict(X)
+    #    coefs = model.coef_
+    #    intercept = model.intercept_
 
 
 #loaded
 
-t = Tweet("https://twitter.com/NBA/status/1491541849617612806").component()
+#subreddit = reddit1.subreddit("nba")
+#red = Reddit("https://www.reddit.com/r/nba/comments/stbide/comment/hx2rqx2/?utm_source=share&utm_medium=web2x&context=3").component()
+#for comment in subreddit.stream.comments(skip_existing=True):
+#    red = Reddit(comment.permalink).component()
+#t = Tweet("https://twitter.com/NBA/status/1491541849617612806").component()
+#
 st.dataframe(stats)
-
-#data_load_state = st.text('Loading data...')
-#data = load_data(10000)
-#data_load_state.text("Done! (using st.cache)")
-
-#if st.checkbox('Show raw data'):
-#    st.subheader('Raw data')
-#    st.write(data)
-
-#st.subheader('Number of pickups by hour')
-#hist_values = np.histogram(data[DATE_COLUMN].dt.hour, bins=24, range=(0,24))[0]
-#st.bar_chart(hist_values)
-
-# Some number in the range 0-23
-#hour_to_filter = st.slider('hour', 0, 23, 17)
-#filtered_data = data[data[DATE_COLUMN].dt.hour == hour_to_filter]
-
-#st.subheader('Map of all pickups at %s:00' % hour_to_filter)
-#st.map(filtered_data)
