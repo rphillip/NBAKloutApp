@@ -79,8 +79,11 @@ class Player(object):
             st.subheader(self.name)
 
         if len(stat) == 1:
+            met = self.values[0]
+            if pd.isna(met):
+                met = 0
             with c2:
-                st.metric(self.stat[0], self.pretty(self.values[0]))
+                st.metric(self.stat[0], self.pretty(met))
 
         else:
             d1,d2,d3 = st.columns(3)
@@ -120,7 +123,7 @@ class Player(object):
                 if pd.isna(met):
                     met = 0
                     meto = 0
-                st.metric(self.stat[0], self.pretty(self.values[0]),self.pretty(float(met-meto)))
+                st.metric(self.stat[0], self.pretty(met),self.pretty(float(met-meto)))
             else:
                 st.metric(self.stat[0], self.pretty(self.values[0]),self.pretty(float(self.values[0]-other[0])))
                 st.metric(self.stat[1], self.pretty(self.values[1]),self.pretty(float(self.values[1]-other[1])))
