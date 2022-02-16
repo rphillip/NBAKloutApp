@@ -99,7 +99,8 @@ class Player(object):
         st.image("imgs/{}.jpg".format(self.br_name))
         st.subheader(self.name)
         met = self.values[2]
-        if self.values[2] == np.nan:
+        st.write(met == np.nan)
+        if met == np.nan:
             met = 0
         if other is None:
             if len(stat) == 1:
