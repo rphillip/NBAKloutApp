@@ -99,10 +99,12 @@ class Player(object):
 
     def show_similar_player(self, ot=None):
         other = ot
+        meto = None
         st.image("imgs/{}.jpg".format(self.br_name))
         st.subheader(self.name)
         met = self.values[2]
-        meto = other[2]
+        if other is not None:
+            meto = other[2]
         if pd.isna(met):
             met = 0
             meto = 0
