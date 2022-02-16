@@ -103,7 +103,6 @@ class Player(object):
         met = None
         st.image("imgs/{}.jpg".format(self.br_name))
         st.subheader(self.name)
-        st.write(len(stat))
         if len(stat) == 1:
             met = self.values[0]
             if other is not None:
