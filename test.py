@@ -412,11 +412,14 @@ elif stats is not None:
 #    red = Reddit(comment.permalink).component()
 #t = Tweet("https://twitter.com/NBA/status/1491541849617612806").component()
 #
-csv = convert_df(stats)
-st.download_button(
-     label="Download data as CSV",
-     data=csv,
-     file_name='nbaklout.csv',
-     mime='text/csv',
- )
-st.dataframe(stats)
+if stats is not None:
+    csv = convert_df(stats)
+    st.download_button(
+         label="Download data as CSV",
+         data=csv,
+         file_name='nbaklout.csv',
+         mime='text/csv',
+     )
+    st.dataframe(stats)
+else:
+    st.subheader("Hi! Choose a stat on the left and see graphs and stats and stuff. Thank you for visiting.")
