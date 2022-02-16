@@ -289,11 +289,11 @@ elif stats is not None:
     #f1,f2,f3,f4 = st.columns(4)
     if len(stat) > 1 :
         with f3:
-            lz = st.checkbox('log z axis', value=False)
+            lz = st.checkbox('log z axis', value=True)
         with f2:
-            ly = st.checkbox('log y axis', value=False)
+            ly = st.checkbox('log y axis', value=True)
     with f1:
-        lx = st.checkbox('log x axis', value=False)
+        lx = st.checkbox('log x axis', value=True)
     #with f4:
     #    lr = st.checkbox('linear regression', value=False)
     with st.spinner('Loading data...'):
