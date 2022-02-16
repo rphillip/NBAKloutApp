@@ -100,21 +100,27 @@ class Player(object):
         st.subheader(self.name)
         met = self.values[2]
         meto = other[2]
-        st.write(pd.isna(met))
-        st.write(pd.isna(meto))
         if pd.isna(met):
             met = 0
             meto = 0
         if other is None:
             if len(stat) == 1:
-                st.metric(self.stat[0], self.pretty(self.values[0]))
+                met = self.values[0]
+                if pd.isna(met):
+                    met = 0
+                st.metric(self.stat[0], self.pretty(met))
             else:
                 st.metric(self.stat[0], self.pretty(self.values[0]))
                 st.metric(self.stat[1], self.pretty(self.values[1]))
                 st.metric(self.stat[2], self.pretty(met))
         else:
             if len(stat) == 1:
-                st.metric(self.stat[0], self.pretty(self.values[0]),self.pretty(float(self.values[0]-other[0])))
+                met = self.values[0]
+                meto = other[0]
+                if pd.isna(met):
+                    met = 0
+                    meto = 0
+                st.metric(self.stat[0], self.pretty(self.values[0]),self.pretty(float(met-meto)))
             else:
                 st.metric(self.stat[0], self.pretty(self.values[0]),self.pretty(float(self.values[0]-other[0])))
                 st.metric(self.stat[1], self.pretty(self.values[1]),self.pretty(float(self.values[1]-other[1])))
