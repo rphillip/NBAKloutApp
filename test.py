@@ -201,14 +201,14 @@ passwd = st.secrets["passwd"]
 hostname = st.secrets["hostname"]
 portnum = st.secrets["portnum"]
 path = "postgresql://{}:{}@{}:{}/{}".format(username,passwd,hostname,portnum,dbname)
-stream = tweepy.Stream(
+stream = (tweepy.Stream(
   st.secrets['twitter_id'], st.secrets['twitter_secret'],
   st.secrets['auth_id'], st.secrets['auth_secret']
-)
-reddit1 = praw.Reddit(
+))
+reddit1 =(praw.Reddit(
     client_id=st.secrets["reddit_id"],
     client_secret=st.secrets["reddit_secret"],
-    user_agent=("NBAKlout v1.0 by /u/r_phill https://nbaklout.icu")
+    user_agent=("NBAKlout v1.0 by /u/r_phill https://nbaklout.icu"))
 playerlist = ["All"]
 statlist = ["None"]
 statdf = pd.DataFrame()
