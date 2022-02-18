@@ -2,9 +2,4 @@
 base="light"
 primaryColor="#4285f4"
 
-[browser]
-serverAddress = "0.0.0.0"
 
-[server]
-enableCORS = false
-port = 80
