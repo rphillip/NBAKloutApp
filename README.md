@@ -31,7 +31,7 @@ Its that easy! The website will automatically update when you change your select
 ## Framework
 ![framework](https://github.com/rphillip/NBAKloutApp/blob/main/framework.png)
 
-1. We use Selenium and BeautifulSoup to scrape Basketball Reference, HoopsHype, Instagram. We use APIs for NBA Stats and twitter
+1. We use Selenium and BeautifulSoup to scrape Basketball Reference, HoopsHype, Instagram. We use APIs for [NBA Stats](https://github.com/swar/nba_api) and [twitter](https://docs.tweepy.org/en/stable/#)
 2. We upload that data to a SQL server on AWS Elastic Beanstalk which automatically creates a Postgres SQL Server.
 3. We have an AWS EC2 that run Streamlit Framework to operate as the dashboard and pulls data from the Postgres server.
 
