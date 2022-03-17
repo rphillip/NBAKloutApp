@@ -2,7 +2,7 @@
 # [NBAKLOUT - http://nbaklout.icu](http://nbaklout.icu) 
 A website that combines player in-game basketball stats with social media stats
 
-# Business Case
+# Business Case / Purpose
 As an advertiser, how do you know you are getting good value for your endorsement?
 Who is the ideal athlete to endorse?
 Well, we want someone with a huge outreach who can blast our product to the world.
@@ -14,6 +14,8 @@ For example:
  - Followers/Dollar - Use this to find a value player with valuable social media outreach
  - Dunks*Likes - Use this to see if a player has dunks that go viral
  - Likes per post * Corner 3 % - Find a sharpshooter for your "Always in your Corner" campaign
+
+And for the big NBA fan, its also found to mess around with. (Users learned that PJ Tucker doesn't have twitter!)
 
 ## Features
 
@@ -33,9 +35,15 @@ Its that easy! The website will automatically update when you change your select
 2. We upload that data to a SQL server on AWS Elastic Beanstalk which automatically creates a Postgres SQL Server.
 3. We have an AWS EC2 that run Streamlit Framework to operate as the dashboard and pulls data from the Postgres server.
 
+## Directory
+- Jupyter Notebook - contains the notebook files that helped create the website (data, scraping, etc)
+- Jupyter Notebook/bbr - contains downloaded html of basketball references which were then scraped
+- Jupyter Notebook/bbr - contains downloaded html of player's instagrams which were then scraped. The htmls contained json data.
+- Docker - contains docker container files to build website
+- imgs - contains profile photos for each player
+
 ## Possible Future Upgrades
-- Automated scraping with Lambda
-- Automated ETL with Glue
+- Further automation with AWS services (Lambda, Glue, Event Bridge, s3)
 - Adding a REST API
 - Move to serverless model (AWS SAM)
 - Adding different leagues and inactive players
