@@ -1,4 +1,4 @@
-![logo](https://github.com/rphillip/NBAKloutApp/logo.png)
+![logo](https://github.com/rphillip/NBAKloutApp/blob/main/logo.png)
 # [NBAKLOUT](http://nbaklout.icu)
 A website that combines player in-game basketball stats with social media stats
 
