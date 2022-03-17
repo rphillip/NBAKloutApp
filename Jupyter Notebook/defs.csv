@@ -1,0 +1,60 @@
+desc,0
+Followers (Twitter),twit_followers_count
+Posts (Twitter),twit_tweet_count
+Retweets (Twitter),tweet_retweet_count
+Comments (Twitter),tweet_reply_count
+Likes (Twitter),tweet_like_count
+Quotes (Twitter),tweet_quote_count
+Likes Per Post (Twitter),twit_likes_per_post
+Followers (Instagram),inst_followers
+Follows (Instagram),inst_follows
+Posts (Instagram),inst_posts
+Likes-Last 12 (Instagram),inst_likes_12
+Comments-Last 12 (Instagram),inst_comments_12
+Likes Per Week (Instagram),inst_comments_per_week
+Comments Per Week (Instagram),inst_comments_per_week
+GP (Total Games Played),g
+GS (Total Games Started),gs
+MP (Total Minutes Played),mp
+FG (Total Field Goals Made),fg
+FGA (Total Field Goals Attempted),fga
+FG% (Field Goal %),fgpct
+3P (Total 3s Made),threep
+3PA (Total 3s Attempted),threepa
+3P% (3s % Made),threeppct
+2P (Total 2s Made),twop
+2PA (Total 2s Attempted),twopa
+2P% (2s % Made),twoppct
+eFG% (Efficient FG%),efgpct
+FT (Total Free Throws Made),ft
+FTA (Total Free Throws Attempted),fta
+FT% (Free Thows % Made),ftpct
+ORB (Total Off Rebounds),orb
+DRB (Total Def Rebounds),drb
+TRB (Total Rebounds),trb
+AST (Total Assists),ast
+STL (Total Steals),stl
+BLK (Total Blocks),blk
+TOV (Total Turnovers),tov
+PF (Total Fouls),pf
+PTS (Total Points),pts
+Dist (Avg Shot Distance),dist
+% of FGA (2s),pct_of_fga_by_distance_2p
+% of FGA (0-3ft),pct_of_fga_by_distance_0to3
+% of FGA (3-10ft),pct_of_fga_by_distance_3to10
+% of FGA (10-16ft),fgpct_by_distance_10to16
+% of FGA (16ft-3p),fgpct_by_distance_16to3p
+% of FGA (3p),fgpct_by_distance_3p
+FG% (0-3ft),fgpct_by_distance_0to3
+FG% (3-10ft),fgpct_by_distance_3to10
+FG% (10-16ft),fgpct_by_distance_10to16
+FG% (16ft-3p),fgpct_by_distance_16to3p
+% of FG (2s assisted),pct_of_fg_astd_2pP
+% of FG (3s assisted),pct_of_fg_astd_3p
+% of FGA (Dunks),dunks_pctfga
+Total Dunks,dunks_num
+% of 3PA (Corner 3),corner_3s_pct3pa
+3P% (Corner 3),corner_3s_3ppct
+Heaves Attempted,heaves_att
+Heaves Made,heaves_num
+Dollars: Salary,salary_2021_22
