@@ -1,5 +1,5 @@
 ![logo](https://github.com/rphillip/NBAKloutApp/blob/main/logo.png)
-# [NBAKLOUT](http://nbaklout.icu)
+# [NBAKLOUT - http://nbaklout.icu](http://nbaklout.icu) 
 A website that combines player in-game basketball stats with social media stats
 
 # Business Case
