@@ -27,7 +27,7 @@ Goto the sidebar and select the player, first stat, times/divide, and/or second 
 Its that easy! The website will automatically update when you change your selection.
 
 ## Framework
-![framework](https://github.com/rphillip/NBAKloutApp/framework.png)
+![framework](https://github.com/rphillip/NBAKloutApp/blob/main/framework.png)
 
 1. We have scrapers Basketball Reference, HoopsHype, Instagram. We use APIs for NBA Stats and twitter
 2. We upload that data to a SQL server on AWS Elastic Beanstalk which automatically creats and RDS.
