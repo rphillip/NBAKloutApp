@@ -233,7 +233,7 @@ username = st.secrets["username"]
 passwd = st.secrets["passwd"]
 hostname = st.secrets["hostname"]
 portnum = st.secrets["portnum"]
-path = "postgresql://{}:{}@{}:{}/{}".format(username,passwd,hostname,portnum,dbname)
+path = "mysql://{}:{}@{}:{}/{}".format(username,passwd,hostname,portnum,dbname)
 stream = (tweepy.Stream(
   st.secrets['twitter_id'], st.secrets['twitter_secret'],
   st.secrets['auth_id'], st.secrets['auth_secret']
