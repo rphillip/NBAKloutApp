@@ -6,7 +6,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import Connection
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy import inspect
-import psycopg2
 import pandas as pd
 import requests
 import streamlit.components.v1 as components
